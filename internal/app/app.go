@@ -84,11 +84,11 @@ func (app *Application) createOrRenew(domain string, renew bool) {
 	var cert *certificate.Resource
 	if renew {
 		cert, err = acmeClient.RenewCertificate(domain)
-	}
-	if !renew {
 		if err != nil {
 			logrus.Errorf("[%s] unable to renew certificate, creating a new certificate: %s", domain, err)
 		}
+	}
+	if !renew || (renew && err != nil) {
 		cert, err = acmeClient.ObtainCertificate(domain)
 	}
 	if err != nil {
