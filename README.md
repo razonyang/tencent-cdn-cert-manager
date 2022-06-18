@@ -23,9 +23,9 @@ The program will load variables from `.env` of current working directory.
 
 ## Testing
 
-I recommend testing your `.env` with `CA_DIR_URL = https://acme-staging-v02.api.letsencrypt.org/directory`, Otherwise, you may encounter a rate limit problem.
+I recommend testing you config with `CA_DIR_URL = https://acme-staging-v02.api.letsencrypt.org/directory`, in order to avoid the rate limit problem of Let's Encrypt.
 
-And change `CA_DIR_URL` as `https://acme-v02.api.letsencrypt.org/directory` if your config is OK.
+And then change `CA_DIR_URL` as `https://acme-v02.api.letsencrypt.org/directory` on production.
 
 ## Docker
 
