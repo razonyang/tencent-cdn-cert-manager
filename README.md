@@ -32,8 +32,11 @@ And change `CA_DIR_URL` as `https://acme-v02.api.letsencrypt.org/directory` if y
 ```bash
 $ docker run \
   -v "$PWD/.env:/app/.env:ro" \
+  -v data:/data \
   --name tccm \
   razonyang/tencent-cdn-cert-manager
 ```
+
+- `/data` stores user private keys and SSL certificates that used to renew certificates.
 
 > You can also specify variables via `-e` instead of mounting `.env` file.
