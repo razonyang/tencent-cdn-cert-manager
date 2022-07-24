@@ -1,6 +1,8 @@
 package app
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -24,13 +26,24 @@ type Application struct {
 }
 
 func New() *Application {
-	return &Application{
-		Email:   os.Getenv("CERT_MANAGER_EMAIL"),
-		Domains: strings.Split(os.Getenv("CERT_MANAGER_DOMAINS"), ","),
+	app := &Application{
+		Email: os.Getenv("CERT_MANAGER_EMAIL"),
 	}
+	domains := strings.TrimSpace(os.Getenv("CERT_MANAGER_DOMAINS"))
+	if domains != "" {
+		app.Domains = strings.Split(domains, ",")
+	}
+	return app
 }
 
 func (app *Application) Run() error {
+	if app.Email == "" {
+		return fmt.Errorf("please specify email via the CERT_MANAGER_EMAIL env var")
+	}
+	if len(app.Domains) == 0 {
+		return errors.New("please specify domains via the CERT_MANAGER_DOMAINS env var")
+	}
+
 	client, err := tencent.NewClientEnv()
 	if err != nil {
 		return err
@@ -41,7 +54,9 @@ func (app *Application) Run() error {
 	interval := strings.TrimSpace(helper.Getenv("CERT_MANAGER_INTERVAL", "@hourly"))
 	for _, domain := range app.Domains {
 		logrus.Infof("[%s] monitor interval: %s\n", domain, interval)
-		c.AddFunc(interval, func() { app.monitor(domain) })
+		if _, err := c.AddFunc(interval, func() { app.monitor(domain) }); err != nil {
+			logrus.Fatalf("[%s] unable to monitor with interval %q: %s", domain, interval, err)
+		}
 		// run the job immediately.
 		go app.monitor(domain)
 	}
